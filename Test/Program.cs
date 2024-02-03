@@ -1,5 +1,7 @@
 ﻿using System.Collections.Concurrent;
 
+using Record;
+
 Standard.File _File = new Standard.File();
 Standard.Cryptology _Cryptology = new Standard.Cryptology();
 
@@ -301,32 +303,4 @@ void Rename(String _Key, String _FullPath, String _FullPathNew)
     Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
     Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _FullPathNew), _Record);
     Dictionary_FileMemo.TryRemove(_Key, out FileMemo _Remove);
-}
-
-public class FileEvent
-{
-    public String FullPath;
-    public String Action;
-    public String FullPathNew;
-
-    public FileEvent(String _FullPath, String _Action, String _FullPathNew)
-    {
-        this.FullPath = _FullPath;
-        this.Action = _Action;
-        this.FullPathNew = _FullPathNew;
-    }
-}
-
-public class FileMemo
-{
-    public String Hash;
-    public long Size;
-    public DateTime Modified;
-
-    public FileMemo(String _Hash, long _Size, DateTime _Modified)
-    {
-        this.Hash = _Hash;
-        this.Size = _Size;
-        this.Modified = _Modified;
-    }
 }
