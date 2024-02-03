@@ -36,28 +36,26 @@ do
         switch (_Line)
         {
             case "FEA":
-                foreach (var item in Queue_FileEventAll)
+                foreach (var Item in Queue_FileEventAll)
                 {
                     try
                     {
-                        Console.WriteLine("{0}", item);
+                        Console.WriteLine("{0}", Item);
                     }
                     catch (Exception E)
                     {
-
                     }
                 }
                 break;
             case "FE":
-                foreach (var item in Queue_FileEvent)
+                foreach (var Item in Queue_FileEvent)
                 {
                     try
                     {
-                        Console.WriteLine("{0} {1}", item.Action, item.FullPath);
+                        Console.WriteLine("{0} {1}", Item.Action, Item.FullPath);
                     }
                     catch (Exception E)
                     {
-
                     }
                 }
                 break;
@@ -66,11 +64,10 @@ do
                 {
                     try
                     {
-                        Console.WriteLine("{0}: {1}", Key, String.Join(", ", Dictionary_FileMemo[Key].Hash));
+                        Console.WriteLine("{0} {1}", String.Join(", ", Dictionary_FileMemo[Key].Hash), Key);
                     }
                     catch (Exception E)
                     {
-
                     }
                 }
                 break;
