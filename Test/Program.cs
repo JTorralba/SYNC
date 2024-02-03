@@ -246,9 +246,15 @@ void StartProcessingToDo()
         {
             if (Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record))
             {
-                _Hash = _Record.Hash;
-                _Size = _Record.Size;
-                _Modified = _Record.Modified;
+                if (_Record == null)
+                {
+                }
+                else
+                {
+                    _Hash = _Record.Hash;
+                    _Size = _Record.Size;
+                    _Modified = _Record.Modified;
+                }
             }
         }
 
