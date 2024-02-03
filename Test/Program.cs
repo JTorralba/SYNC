@@ -5,12 +5,12 @@ using Record;
 Standard.File _File = new Standard.File();
 Standard.Cryptology _Cryptology = new Standard.Cryptology();
 
-BlockingCollection<String> Queue_FileEventAll;
+BlockingCollection<String> Queue_FileEvents;
 BlockingCollection<FileEvent> Queue_FileEvent;
 
 ConcurrentDictionary<String, FileMemo> Dictionary_FileMemo;
 
-Queue_FileEventAll = new BlockingCollection<String>();
+Queue_FileEvents = new BlockingCollection<String>();
 Queue_FileEvent = new BlockingCollection<FileEvent>();
 
 Dictionary_FileMemo = new ConcurrentDictionary<String, FileMemo>();
@@ -25,8 +25,8 @@ _FileSystemWatcher.Renamed += Renamed;
 _FileSystemWatcher.EnableRaisingEvents = true;
 _FileSystemWatcher.IncludeSubdirectories = true;
 
-Task.Run(() => StartProcessingFileChanges());
-Task.Run(() => StartProcessingToDo());
+Task.Run(() => FileEvents());
+Task.Run(() => FileEvent());
 
 String _Command;
 
@@ -41,12 +41,12 @@ do
 
 void Created(Object source, FileSystemEventArgs e)
 {
-    Queue_FileEventAll.Add(e.FullPath);
+    Queue_FileEvents.Add(e.FullPath);
 }
 
 void Changed(Object source, FileSystemEventArgs e)
 {
-    Queue_FileEventAll.Add(e.FullPath);
+    Queue_FileEvents.Add(e.FullPath);
 }
 
 void Deleted(Object source, FileSystemEventArgs e)
@@ -56,7 +56,7 @@ void Deleted(Object source, FileSystemEventArgs e)
 
 void Renamed(Object source, RenamedEventArgs e)
 {
-    foreach (var item in Queue_FileEventAll)
+    foreach (var item in Queue_FileEvents)
     {
         bool _InQueue = false;
 
@@ -78,18 +78,18 @@ void Renamed(Object source, RenamedEventArgs e)
         
         if (_InQueue)
         {
-            Queue_FileEventAll.Add(_ReQueue);
+            Queue_FileEvents.Add(_ReQueue);
         }
     }
 
     Queue_FileEvent.Add(new FileEvent(e.OldFullPath, "R", e.FullPath));
 }
 
-void StartProcessingFileChanges()
+void FileEvents()
 {
-    while (!Queue_FileEventAll.IsCompleted)
+    while (!Queue_FileEvents.IsCompleted)
     {
-        String _FullPath = Queue_FileEventAll.Take();
+        String _FullPath = Queue_FileEvents.Take();
 
         //Console.WriteLine("AAA: Take() -> {0}", _FullPath);
 
@@ -161,7 +161,7 @@ void StartProcessingFileChanges()
     }
 }
 
-void StartProcessingToDo()
+void FileEvent()
 {
     while (!Queue_FileEvent.IsCompleted)
     {
@@ -270,7 +270,7 @@ void CLI(String _Command)
     switch (_Command.ToUpper())
     {
         case "A":
-            foreach (var Item in Queue_FileEventAll)
+            foreach (var Item in Queue_FileEvents)
             {
                 try
                 {
