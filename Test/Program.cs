@@ -26,42 +26,46 @@ _FileSystemWatcher.IncludeSubdirectories = true;
 Task.Run(() => StartProcessingFileChanges());
 Task.Run(() => StartProcessingToDo());
 
-//Console.ReadLine();
-
-String line;
+String _Line;
 
 do
 {
-    Console.WriteLine();
-    line = Console.ReadLine();
-    if (line != null)
+    _Line = Console.ReadLine();
+    if (_Line != null)
     {
-        foreach (var item in Queue_FileEvent)
+        switch (_Line)
         {
-            try
-            {
-                Console.WriteLine("{0} {1}", item.Action, item.FullPath);
-            }
-            catch (Exception E)
-            {
+            case "FE":
+                foreach (var item in Queue_FileEvent)
+                {
+                    try
+                    {
+                        Console.WriteLine("{0} {1}", item.Action, item.FullPath);
+                    }
+                    catch (Exception E)
+                    {
 
-            }
-        }
+                    }
+                }
+                break;
+            case "FM":
+                foreach (var Key in Dictionary_FileMemo.Keys.Order())
+                {
+                    try
+                    {
+                        Console.WriteLine("{0}: {1}", Key, String.Join(", ", Dictionary_FileMemo[Key].Hash));
+                    }
+                    catch (Exception E)
+                    {
 
-        Console.WriteLine();
-        foreach (var Key in Dictionary_FileMemo.Keys.Order())
-        {
-            try
-            {
-                Console.WriteLine("{0}: {1}", Key, String.Join(", ", Dictionary_FileMemo[Key].Hash));
-            }
-            catch (Exception E)
-            {
-
-            }
+                    }
+                }
+                break;
+            default:
+                break;
         }
     }
-} while (line != null);
+} while (_Line != null);
 
 void Created(Object source, FileSystemEventArgs e)
 {
@@ -152,7 +156,6 @@ void StartProcessingFileChanges()
         }
 
         _FileMemo = new FileMemo(_FileHash, _FileSize, _FileModified);
-
 
         //Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", " ", _FileHash, _FileSize.ToString(), _FullPath, _FileModified);
 
@@ -273,6 +276,8 @@ void StartProcessingToDo()
                 break;
         }
     }
+
+    Console.WriteLine();
 }
 
 void Rename(String _Key, String _FullPath, String _FullPathNew)
