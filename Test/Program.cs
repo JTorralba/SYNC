@@ -35,6 +35,19 @@ do
     {
         switch (_Line)
         {
+            case "FEA":
+                foreach (var item in Queue_FileEventAll)
+                {
+                    try
+                    {
+                        Console.WriteLine("{0}", item);
+                    }
+                    catch (Exception E)
+                    {
+
+                    }
+                }
+                break;
             case "FE":
                 foreach (var item in Queue_FileEvent)
                 {
