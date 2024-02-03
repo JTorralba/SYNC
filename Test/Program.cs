@@ -28,56 +28,16 @@ _FileSystemWatcher.IncludeSubdirectories = true;
 Task.Run(() => StartProcessingFileChanges());
 Task.Run(() => StartProcessingToDo());
 
-String _Line;
+String _Command;
 
 do
 {
-    _Line = Console.ReadLine();
-    if (_Line != null)
+    _Command = Console.ReadLine();
+    if (_Command != null)
     {
-        switch (_Line)
-        {
-            case "FEA":
-                foreach (var Item in Queue_FileEventAll)
-                {
-                    try
-                    {
-                        Console.WriteLine("{0}", Item);
-                    }
-                    catch (Exception E)
-                    {
-                    }
-                }
-                break;
-            case "FE":
-                foreach (var Item in Queue_FileEvent)
-                {
-                    try
-                    {
-                        Console.WriteLine("{0} {1}", Item.Action, Item.FullPath);
-                    }
-                    catch (Exception E)
-                    {
-                    }
-                }
-                break;
-            case "FM":
-                foreach (var Key in Dictionary_FileMemo.Keys.Order())
-                {
-                    try
-                    {
-                        Console.WriteLine("{0} {1}", String.Join(", ", Dictionary_FileMemo[Key].Hash), Key);
-                    }
-                    catch (Exception E)
-                    {
-                    }
-                }
-                break;
-            default:
-                break;
-        }
+        CLI(_Command);
     }
-} while (_Line != null);
+} while (_Command != null);
 
 void Created(Object source, FileSystemEventArgs e)
 {
@@ -303,4 +263,52 @@ void Rename(String _Key, String _FullPath, String _FullPathNew)
     Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
     Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _FullPathNew), _Record);
     Dictionary_FileMemo.TryRemove(_Key, out FileMemo _Remove);
+}
+
+void CLI(String _Command)
+{
+    switch (_Command.ToUpper())
+    {
+        case "A":
+            foreach (var Item in Queue_FileEventAll)
+            {
+                try
+                {
+                    Console.WriteLine("{0}", Item);
+                }
+                catch (Exception E)
+                {
+                }
+            }
+            break;
+        case "E":
+            foreach (var Item in Queue_FileEvent)
+            {
+                try
+                {
+                    Console.WriteLine("{0} {1}", Item.Action, Item.FullPath);
+                }
+                catch (Exception E)
+                {
+                }
+            }
+            break;
+        case "M":
+            foreach (var Key in Dictionary_FileMemo.Keys.Order())
+            {
+                try
+                {
+                    Console.WriteLine("{0} {1}", String.Join(", ", Dictionary_FileMemo[Key].Hash), Key);
+                }
+                catch (Exception E)
+                {
+                }
+            }
+            break;
+        case "X":
+            Environment.Exit(0);
+            break;
+        default:
+            break;
+    }
 }
