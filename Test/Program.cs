@@ -177,7 +177,7 @@ void FileEvent()
         if (_FileEvent.Action == "R")
         {
             String[] Split = _FileEvent.FullPathNew.Split('\\');
-            String Base = String.Join('\\', Split.Take(Split.Length - 1));
+            String Base = String.Join("\\", Split.Take(Split.Length - 1));
             _FullPathNew = "-> " + Split.Last();
         }
 
@@ -236,7 +236,7 @@ void FileEvent()
         {
             case "D":
                 List<String> ToDelete = Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath)).ToList();
-                ToDelete.ForEach(Key => Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove));
+                ToDelete.ForEach(Key => Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove_Delete));
                 break;
             case "R":
                 if (_File.IsDirectory(_FileEvent.FullPathNew))
@@ -246,7 +246,7 @@ void FileEvent()
                 }
                 Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out  _Record);
                 Dictionary_FileMemo.TryAdd(_FileEvent.FullPathNew, _Record);
-                Dictionary_FileMemo.TryRemove(_FileEvent.FullPath, out FileMemo _Remove);
+                Dictionary_FileMemo.TryRemove(_FileEvent.FullPath, out FileMemo _Remove_Rename);
                 break;
             case "C":
                 break;
