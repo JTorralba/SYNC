@@ -62,10 +62,10 @@ void Renamed(Object source, RenamedEventArgs e)
 
         String _ReQueue = "";
 
-        if (item.Contains(e.OldFullPath + "\\"))
+        if (item.Contains(e.OldFullPath + '\\'))
         {
             _InQueue = true;
-            _ReQueue = item.Replace(e.OldFullPath + "\\", e.FullPath + "\\");
+            _ReQueue = item.Replace(e.OldFullPath + '\\', e.FullPath + '\\');
         }
         else
         {
@@ -176,8 +176,8 @@ void FileEvent()
 
         if (_FileEvent.Action == "R")
         {
-            String[] Split = _FileEvent.FullPathNew.Split("\\");
-            String Base = String.Join("\\", Split.Take(Split.Length - 1));
+            String[] Split = _FileEvent.FullPathNew.Split('\\');
+            String Base = String.Join('\\', Split.Take(Split.Length - 1));
             _FullPathNew = "-> " + Split.Last();
         }
 
@@ -241,7 +241,7 @@ void FileEvent()
             case "R":
                 if (_File.IsDirectory(_FileEvent.FullPathNew))
                 {
-                    List<String> ToRename = Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + "\\")).ToList();
+                    List<String> ToRename = Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + '\\')).ToList();
                     ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.FullPathNew));
                 }
                 Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out  _Record);
