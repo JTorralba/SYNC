@@ -294,7 +294,7 @@ void CLI(String _Command)
             }
             break;
         case "M":
-            foreach (var Key in Dictionary_FileMemo.Keys.Order())
+            foreach (var Key in Dictionary_FileMemo.Keys.OrderBy(Key => Key))
             {
                 try
                 {
