@@ -27,7 +27,7 @@ do
             case ".":
                 foreach (var _FileEvent in _FileEvents)
                 {
-                    Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.FullPathNew);
+                    Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.NameNew);
                 }
                 break;
             case "X":

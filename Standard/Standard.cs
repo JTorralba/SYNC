@@ -71,13 +71,13 @@ namespace Standard
     {
         public string FullPath;
         public string Action;
-        public string FullPathNew;
+        public string NameNew;
 
-        public FileEvent(string _FullPath, string _Action, string _FullPathNew)
+        public FileEvent(string _FullPath, string _Action, string _NameNew)
         {
             this.FullPath = _FullPath;
             this.Action = _Action;
-            this.FullPathNew = _FullPathNew;
+            this.NameNew = _NameNew;
         }
     }
 
@@ -265,13 +265,13 @@ namespace Standard
                 string _Hash = new string('-', 32);
                 long _Size = 0;
                 DateTime _Modified = DateTime.Now;
-                string _FullPathNew = "";
+                string _NameNew = "";
 
                 if (_FileEvent.Action == "R")
                 {
-                    string[] _Split = _FileEvent.FullPathNew.Split('\\');
+                    string[] _Split = _FileEvent.NameNew.Split('\\');
                     string _Base = string.Join("\\", _Split.Take(_Split.Length - 1));
-                    _FullPathNew = _Split.Last();
+                    _NameNew = _Split.Last();
                 }
 
                 FileInfo _FileInfo = new FileInfo(_FileEvent.FullPath);
@@ -300,7 +300,7 @@ namespace Standard
 
                 if (_FileEvent.Action == "R")
                 {
-                    if (_Dictionary_FileMemo.TryGetValue(_FileEvent.FullPathNew, out _Record))
+                    if (_Dictionary_FileMemo.TryGetValue(_FileEvent.NameNew, out _Record))
                     {
                         _Hash = _Record.Hash;
                         _Size = _Record.Size;
@@ -323,9 +323,9 @@ namespace Standard
                     }
                 }
 
-                Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4} {5}", _FileEvent.Action, _Hash, _Size.ToString(), _FileEvent.FullPath, _Modified, _FullPathNew);
+                Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4} {5}", _FileEvent.Action, _Hash, _Size.ToString(), _FileEvent.FullPath, _Modified, _NameNew);
 
-                _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _FullPathNew));
+                _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _NameNew));
 
                 switch (_FileEvent.Action)
                 {
@@ -334,13 +334,13 @@ namespace Standard
                         _ToDelete.ForEach(Key => _Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove_Delete));
                         break;
                     case "R":
-                        if (_File.IsDirectory(_FileEvent.FullPathNew))
+                        if (_File.IsDirectory(_FileEvent.NameNew))
                         {
                             List<string> _ToRename = _Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + '\\')).ToList();
-                            _ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.FullPathNew));
+                            _ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.NameNew));
                         }
                         _Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record);
-                        _Dictionary_FileMemo.TryAdd(_FileEvent.FullPathNew, _Record);
+                        _Dictionary_FileMemo.TryAdd(_FileEvent.NameNew, _Record);
                         _Dictionary_FileMemo.TryRemove(_FileEvent.FullPath, out FileMemo _Remove_Rename);
                         break;
                     case "C":
@@ -351,10 +351,10 @@ namespace Standard
             }
         }
 
-        void Rename(string _Key, string _FullPath, string _FullPathNew)
+        void Rename(string _Key, string _FullPath, string _NameNew)
         {
             _Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
-            _Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _FullPathNew), _Record);
+            _Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _NameNew), _Record);
             _Dictionary_FileMemo.TryRemove(_Key, out FileMemo _Remove);
         }
 
