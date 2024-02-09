@@ -11,15 +11,15 @@ namespace Standard
 {
     public class DEBUG
     {
-        public static void Message(String Message)
+        public static void Message(string _Message)
         {
-            Console.WriteLine("DEBUG: {0}", Message);
+            Console.WriteLine("DEBUG: {0}", _Message);
         }
     }
 
     public class File
     {
-        public bool IsDirectory(String _FullPath)
+        public bool IsDirectory(string _FullPath)
         {
             FileAttributes _FileAttributes = 0;
 
@@ -27,7 +27,7 @@ namespace Standard
             {
                 _FileAttributes = System.IO.File.GetAttributes(_FullPath);
             }
-            catch (Exception E)
+            catch (Exception _Exception)
             {
                 return false;
             }
@@ -40,7 +40,7 @@ namespace Standard
             return false;
         }
 
-        public bool IsLocked(String _FullPath)
+        public bool IsLocked(string _FullPath)
         {
             FileInfo _FileInfo = new FileInfo(_FullPath);
 
@@ -50,7 +50,7 @@ namespace Standard
             {
                 _FileStream = _FileInfo.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
             }
-            catch (Exception E)
+            catch (Exception _Exception)
             {
                 return true;
             }
@@ -69,11 +69,11 @@ namespace Standard
 
     public class FileEvent
     {
-        public String FullPath;
-        public String Action;
-        public String FullPathNew;
+        public string FullPath;
+        public string Action;
+        public string FullPathNew;
 
-        public FileEvent(String _FullPath, String _Action, String _FullPathNew)
+        public FileEvent(string _FullPath, string _Action, string _FullPathNew)
         {
             this.FullPath = _FullPath;
             this.Action = _Action;
@@ -83,11 +83,11 @@ namespace Standard
 
     public class FileMemo
     {
-        public String Hash;
+        public string Hash;
         public long Size;
         public DateTime Modified;
 
-        public FileMemo(String _Hash, long _Size, DateTime _Modified)
+        public FileMemo(string _Hash, long _Size, DateTime _Modified)
         {
             this.Hash = _Hash;
             this.Size = _Size;
@@ -97,86 +97,86 @@ namespace Standard
 
     public class FileAudit
     {
-        Standard.File _File = new Standard.File();
-        Standard.Cryptology _Cryptology = new Standard.Cryptology();
+        File _File = new File();
+        Cryptology _Cryptology = new Cryptology();
 
         List<FileEvent> _FileEvents = new List<FileEvent>();
 
-        BlockingCollection<String> Queue_FileEvents;
-        BlockingCollection<FileEvent> Queue_FileEvent;
+        BlockingCollection<string> _Queue_FileEvents;
+        BlockingCollection<FileEvent> _Queue_FileEvent;
 
-        ConcurrentDictionary<String, FileMemo> Dictionary_FileMemo;
+        ConcurrentDictionary<string, FileMemo> _Dictionary_FileMemo;
 
         public FileAudit(ref List<FileEvent> _FileEvents)
         {
             this._FileEvents = _FileEvents;
 
-            Queue_FileEvents = new BlockingCollection<String>();
-            Queue_FileEvent = new BlockingCollection<FileEvent>();
+            _Queue_FileEvents = new BlockingCollection<string>();
+            _Queue_FileEvent = new BlockingCollection<FileEvent>();
 
-            Dictionary_FileMemo = new ConcurrentDictionary<String, FileMemo>();
+            _Dictionary_FileMemo = new ConcurrentDictionary<string, FileMemo>();
 
             Task.Run(() => FileEvents());
             Task.Run(() => FileEvent());
         }
 
-        public void Created(Object source, FileSystemEventArgs e)
+        public void Created(Object _Object, FileSystemEventArgs _FileSystemEventArgs)
         {
-            Queue_FileEvents.Add(e.FullPath);
+            _Queue_FileEvents.Add(_FileSystemEventArgs.FullPath);
         }
 
-        public void Changed(Object source, FileSystemEventArgs e)
+        public void Changed(Object _Object, FileSystemEventArgs _FileSystemEventArgs)
         {
-            Queue_FileEvents.Add(e.FullPath);
+            _Queue_FileEvents.Add(_FileSystemEventArgs.FullPath);
         }
 
-        public void Deleted(Object source, FileSystemEventArgs e)
+        public void Deleted(Object _Object, FileSystemEventArgs _FileSystemEventArgs)
         {
-            Queue_FileEvent.Add(new FileEvent(e.FullPath, "D", ""));
+            _Queue_FileEvent.Add(new FileEvent(_FileSystemEventArgs.FullPath, "D", ""));
         }
 
-        public void Renamed(Object source, RenamedEventArgs e)
+        public void Renamed(Object _Object, RenamedEventArgs _RenamedEventArgs)
         {
-            foreach (var item in Queue_FileEvents)
+            foreach (var item in _Queue_FileEvents)
             {
                 bool _InQueue = false;
 
-                String _ReQueue = "";
+                string _ReQueue = "";
 
-                if (item.Contains(e.OldFullPath + '\\'))
+                if (item.Contains(_RenamedEventArgs.OldFullPath + '\\'))
                 {
                     _InQueue = true;
-                    _ReQueue = item.Replace(e.OldFullPath + '\\', e.FullPath + '\\');
+                    _ReQueue = item.Replace(_RenamedEventArgs.OldFullPath + '\\', _RenamedEventArgs.FullPath + '\\');
                 }
                 else
                 {
-                    if (item == e.OldFullPath)
+                    if (item == _RenamedEventArgs.OldFullPath)
                     {
                         _InQueue = true;
-                        _ReQueue = e.FullPath;
+                        _ReQueue = _RenamedEventArgs.FullPath;
                     }
                 }
 
                 if (_InQueue)
                 {
-                    Queue_FileEvents.Add(_ReQueue);
+                    _Queue_FileEvents.Add(_ReQueue);
                 }
             }
 
-            Queue_FileEvent.Add(new FileEvent(e.OldFullPath, "R", e.FullPath));
+            _Queue_FileEvent.Add(new FileEvent(_RenamedEventArgs.OldFullPath, "R", _RenamedEventArgs.FullPath));
         }
 
         void FileEvents()
         {
-            while (!Queue_FileEvents.IsCompleted)
+            while (!_Queue_FileEvents.IsCompleted)
             {
-                String _FullPath = Queue_FileEvents.Take();
+                string _FullPath = _Queue_FileEvents.Take();
 
                 //Console.WriteLine("AAA: Take() -> {0}", _FullPath);
 
                 FileInfo _FileInfo = new FileInfo(_FullPath);
 
-                String _FileHash = "";
+                string _FileHash = "";
                 long _FileSize = 0;
                 DateTime _FileModified = DateTime.Now;
                 FileMemo _FileMemo;
@@ -189,7 +189,7 @@ namespace Standard
                 {
                     if (_File.IsDirectory(_FullPath))
                     {
-                        _FileHash = new String('-', 32);
+                        _FileHash = new string('-', 32);
                         _FileSize = 0;
                         _FileModified = _FileInfo.CreationTime;
                     }
@@ -212,14 +212,14 @@ namespace Standard
 
                 //Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", " ", _FileHash, _FileSize.ToString(), _FullPath, _FileModified);
 
-                if (Dictionary_FileMemo.TryGetValue(_FullPath, out FileMemo _Record))
+                if (_Dictionary_FileMemo.TryGetValue(_FullPath, out FileMemo _Record))
                 {
                     if (_Record != null)
                     {
                         if ((_FileHash != _Record.Hash) && (_FileSize != 0))
                         {
-                            Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
-                            Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
+                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                            _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                         }
                         else
                         {
@@ -229,37 +229,37 @@ namespace Standard
                     {
                         if (_File.IsDirectory(_FullPath))
                         {
-                            Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
-                            Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
+                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                            _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                         }
                     }
                 }
                 else
                 {
-                    Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
-                    Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
+                    _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                    _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                 }
             }
         }
 
         void FileEvent()
         {
-            while (!Queue_FileEvent.IsCompleted)
+            while (!_Queue_FileEvent.IsCompleted)
             {
-                FileEvent _FileEvent = Queue_FileEvent.Take();
+                FileEvent _FileEvent = _Queue_FileEvent.Take();
 
                 //Console.WriteLine("BBB: Take() -> {0} {1}", _FileEvent.Action, _FileEvent.FullPath);
 
-                String _Hash = new String('-', 32);
+                string _Hash = new string('-', 32);
                 long _Size = 0;
                 DateTime _Modified = DateTime.Now;
-                String _FullPathNew = "";
+                string _FullPathNew = "";
 
                 if (_FileEvent.Action == "R")
                 {
-                    String[] Split = _FileEvent.FullPathNew.Split('\\');
-                    String Base = String.Join("\\", Split.Take(Split.Length - 1));
-                    _FullPathNew = Split.Last();
+                    string[] _Split = _FileEvent.FullPathNew.Split('\\');
+                    string _Base = string.Join("\\", _Split.Take(_Split.Length - 1));
+                    _FullPathNew = _Split.Last();
                 }
 
                 FileInfo _FileInfo = new FileInfo(_FileEvent.FullPath);
@@ -277,9 +277,9 @@ namespace Standard
                     {
                         if (_FileInfo.Exists)
                         {
-                            Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out FileMemo _X);
+                            _Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out FileMemo _X);
                             FileMemo _Y = new FileMemo(_X.Hash, _X.Size, _FileInfo.LastWriteTime);
-                            Dictionary_FileMemo.AddOrUpdate(_FileEvent.FullPath, _Y, (Key, OldValue) => _Y);
+                            _Dictionary_FileMemo.AddOrUpdate(_FileEvent.FullPath, _Y, (Key, _OldValue) => _Y);
                         }
                     }
                 }
@@ -288,7 +288,7 @@ namespace Standard
 
                 if (_FileEvent.Action == "R")
                 {
-                    if (Dictionary_FileMemo.TryGetValue(_FileEvent.FullPathNew, out _Record))
+                    if (_Dictionary_FileMemo.TryGetValue(_FileEvent.FullPathNew, out _Record))
                     {
                         _Hash = _Record.Hash;
                         _Size = _Record.Size;
@@ -297,7 +297,7 @@ namespace Standard
                 }
                 else
                 {
-                    if (Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record))
+                    if (_Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record))
                     {
                         if (_Record == null)
                         {
@@ -313,27 +313,23 @@ namespace Standard
 
                 Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4} {5}", _FileEvent.Action, _Hash, _Size.ToString(), _FileEvent.FullPath, _Modified, _FullPathNew);
 
-                //StringBuilder SB = new StringBuilder();
-                //SB.AppendFormat("{0} {1} {2}", _FileEvent.Action, _FileEvent.FullPath, _FullPathNew);
-                //Event.Add(SB.ToString());
-
                 _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _FullPathNew));
 
                 switch (_FileEvent.Action)
                 {
                     case "D":
-                        List<String> ToDelete = Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath)).ToList();
-                        ToDelete.ForEach(Key => Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove_Delete));
+                        List<string> _ToDelete = _Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath)).ToList();
+                        _ToDelete.ForEach(Key => _Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove_Delete));
                         break;
                     case "R":
                         if (_File.IsDirectory(_FileEvent.FullPathNew))
                         {
-                            List<String> ToRename = Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + '\\')).ToList();
-                            ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.FullPathNew));
+                            List<string> _ToRename = _Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + '\\')).ToList();
+                            _ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.FullPathNew));
                         }
-                        Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record);
-                        Dictionary_FileMemo.TryAdd(_FileEvent.FullPathNew, _Record);
-                        Dictionary_FileMemo.TryRemove(_FileEvent.FullPath, out FileMemo _Remove_Rename);
+                        _Dictionary_FileMemo.TryGetValue(_FileEvent.FullPath, out _Record);
+                        _Dictionary_FileMemo.TryAdd(_FileEvent.FullPathNew, _Record);
+                        _Dictionary_FileMemo.TryRemove(_FileEvent.FullPath, out FileMemo _Remove_Rename);
                         break;
                     case "C":
                         break;
@@ -343,49 +339,49 @@ namespace Standard
             }
         }
 
-        void Rename(String _Key, String _FullPath, String _FullPathNew)
+        void Rename(string _Key, string _FullPath, string _FullPathNew)
         {
-            Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
-            Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _FullPathNew), _Record);
-            Dictionary_FileMemo.TryRemove(_Key, out FileMemo _Remove);
+            _Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
+            _Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _FullPathNew), _Record);
+            _Dictionary_FileMemo.TryRemove(_Key, out FileMemo _Remove);
         }
 
-        public void CLI(String _Command)
+        public void CLI(string _Command)
         {
             switch (_Command.ToUpper())
             {
                 case "A":
-                    foreach (var Item in Queue_FileEvents)
+                    foreach (var _Item in _Queue_FileEvents)
                     {
                         try
                         {
-                            Console.WriteLine("{0}", Item);
+                            Console.WriteLine("{0}", _Item);
                         }
-                        catch (Exception E)
+                        catch (Exception _Exception)
                         {
                         }
                     }
                     break;
                 case "E":
-                    foreach (var Item in Queue_FileEvent)
+                    foreach (var _Item in _Queue_FileEvent)
                     {
                         try
                         {
-                            Console.WriteLine("{0} {1}", Item.Action, Item.FullPath);
+                            Console.WriteLine("{0} {1}", _Item.Action, _Item.FullPath);
                         }
-                        catch (Exception E)
+                        catch (Exception _Exception)
                         {
                         }
                     }
                     break;
                 case "M":
-                    foreach (var Key in Dictionary_FileMemo.Keys.OrderBy(Key => Key))
+                    foreach (var _Key in _Dictionary_FileMemo.Keys.OrderBy(_Key => _Key))
                     {
                         try
                         {
-                            Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", ' ', Dictionary_FileMemo[Key].Hash, Dictionary_FileMemo[Key].Size.ToString(), Key, Dictionary_FileMemo[Key].Modified);
+                            Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", ' ', _Dictionary_FileMemo[_Key].Hash, _Dictionary_FileMemo[_Key].Size.ToString(), _Key, _Dictionary_FileMemo[_Key].Modified);
                         }
-                        catch (Exception E)
+                        catch (Exception _Exception)
                         {
                         }
                     }
@@ -399,13 +395,11 @@ namespace Standard
         }
     }
 
-
-
     public class Cryptology
     {
-        Standard.File _File = new Standard.File();
+        File _File = new File();
 
-        public String FileHash(String _FullPath)
+        public string FileHash(string _FullPath)
         {
             var _FileInfo = new FileInfo(_FullPath);
 
@@ -419,9 +413,9 @@ namespace Standard
             }
         }
 
-        public String FileHash(FileStream _FileStream)
+        public string FileHash(FileStream _FileStream)
         {
-            StringBuilder _Hash_String = new StringBuilder();
+            StringBuilder _StringBuilder = new StringBuilder();
 
             if (_FileStream != null)
             {
@@ -429,11 +423,11 @@ namespace Standard
 
                 MD5 _MD5 = MD5CryptoServiceProvider.Create();
 
-                Byte[] _Hash = _MD5.ComputeHash(_FileStream);
+                Byte[] _Bytes = _MD5.ComputeHash(_FileStream);
 
-                foreach (Byte _Byte in _Hash)
+                foreach (Byte _Byte in _Bytes)
                 {
-                    _Hash_String.Append(_Byte.ToString("X2"));
+                    _StringBuilder.Append(_Byte.ToString("X2"));
                 }
 
                 _FileStream.Seek(0, SeekOrigin.Begin);
@@ -445,7 +439,7 @@ namespace Standard
                 _FileStream.Dispose();
             }
             
-            return _Hash_String.ToString();
+            return _StringBuilder.ToString();
         }
     }
 }
