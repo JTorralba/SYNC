@@ -118,6 +118,8 @@ namespace Standard
 
             Task.Run(() => FileEvents());
             Task.Run(() => FileEvent());
+
+            FileScan();
         }
 
         public void Created(Object _Object, FileSystemEventArgs _FileSystemEventArgs)
@@ -164,6 +166,16 @@ namespace Standard
             }
 
             _Queue_FileEvent.Add(new FileEvent(_RenamedEventArgs.OldFullPath, "R", _RenamedEventArgs.FullPath));
+        }
+
+        void FileScan()
+        {
+            string[] _Items = Directory.GetFileSystemEntries(@"C:\Users\JTorralba\Desktop", "*", SearchOption.AllDirectories);
+
+            foreach (var _Item in _Items)
+            {
+                _Queue_FileEvents.Add(_Item);
+            }
         }
 
         void FileEvents()
@@ -388,6 +400,9 @@ namespace Standard
                     break;
                 case "X":
                     Environment.Exit(0);
+                    break;
+                case "/":
+                    FileScan();
                     break;
                 default:
                     break;
