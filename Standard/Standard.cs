@@ -362,7 +362,7 @@ namespace Standard
         {
             switch (_Command.ToUpper())
             {
-                case "A":
+                case "FES":
                     foreach (var _Item in _Queue_FileEvents)
                     {
                         try
@@ -374,7 +374,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "E":
+                case "FE":
                     foreach (var _Item in _Queue_FileEvent)
                     {
                         try
@@ -386,7 +386,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "M":
+                case "FM":
                     foreach (var _Key in _Dictionary_FileMemo.Keys.OrderBy(_Key => _Key))
                     {
                         try
@@ -398,10 +398,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "X":
-                    Environment.Exit(0);
-                    break;
-                case "/":
+                case "FS":
                     FileScan();
                     break;
                 default:

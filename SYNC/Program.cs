@@ -30,6 +30,9 @@ do
                     Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.FullPathNew);
                 }
                 break;
+            case "X":
+                Environment.Exit(0);
+                break;
             default:
                 _FileAudit.CLI(_Command);
                 break;
