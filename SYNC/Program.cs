@@ -1,6 +1,8 @@
 ﻿using Standard;
 
-FileAudit _FileAudit = new FileAudit();
+List<FileEvent> _FileEvents = new List<FileEvent>();
+
+FileAudit _FileAudit = new FileAudit(ref _FileEvents);
 
 FileSystemWatcher _FileSystemWatcher = new FileSystemWatcher(@"C:\Users\JTorralba\Desktop", filter: "*");
 
@@ -19,6 +21,17 @@ do
     _Command = Console.ReadLine();
     if (_Command != null)
     {
-        _FileAudit.CLI(_Command);
+        switch (_Command.ToUpper())
+        {
+            case ".":
+                foreach (var _FileEvent in _FileEvents)
+                {
+                    Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.FullPathNew);
+                }
+                break;
+            default:
+                _FileAudit.CLI(_Command);
+                break;
+        }
     }
 } while (_Command != null);

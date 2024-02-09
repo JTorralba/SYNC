@@ -100,13 +100,17 @@ namespace Standard
         Standard.File _File = new Standard.File();
         Standard.Cryptology _Cryptology = new Standard.Cryptology();
 
+        List<FileEvent> _FileEvents = new List<FileEvent>();
+
         BlockingCollection<String> Queue_FileEvents;
         BlockingCollection<FileEvent> Queue_FileEvent;
 
         ConcurrentDictionary<String, FileMemo> Dictionary_FileMemo;
 
-        public FileAudit()
+        public FileAudit(ref List<FileEvent> _FileEvents)
         {
+            this._FileEvents = _FileEvents;
+
             Queue_FileEvents = new BlockingCollection<String>();
             Queue_FileEvent = new BlockingCollection<FileEvent>();
 
@@ -255,7 +259,7 @@ namespace Standard
                 {
                     String[] Split = _FileEvent.FullPathNew.Split('\\');
                     String Base = String.Join("\\", Split.Take(Split.Length - 1));
-                    _FullPathNew = "-> " + Split.Last();
+                    _FullPathNew = Split.Last();
                 }
 
                 FileInfo _FileInfo = new FileInfo(_FileEvent.FullPath);
@@ -308,6 +312,12 @@ namespace Standard
                 }
 
                 Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4} {5}", _FileEvent.Action, _Hash, _Size.ToString(), _FileEvent.FullPath, _Modified, _FullPathNew);
+
+                //StringBuilder SB = new StringBuilder();
+                //SB.AppendFormat("{0} {1} {2}", _FileEvent.Action, _FileEvent.FullPath, _FullPathNew);
+                //Event.Add(SB.ToString());
+
+                _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _FullPathNew));
 
                 switch (_FileEvent.Action)
                 {
