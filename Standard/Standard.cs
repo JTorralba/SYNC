@@ -139,29 +139,29 @@ namespace Standard
 
         public void Renamed(Object _Object, RenamedEventArgs _RenamedEventArgs)
         {
-            foreach (var item in _Queue_FileEvents)
+            foreach (var _Event in _Queue_FileEvents)
             {
-                bool _InQueue = false;
+                bool _ReQueue = false;
 
-                string _ReQueue = "";
+                string _ReQueue_Event = "";
 
-                if (item.Contains(_RenamedEventArgs.OldFullPath + '\\'))
+                if (_Event.Contains(_RenamedEventArgs.OldFullPath + '\\'))
                 {
-                    _InQueue = true;
-                    _ReQueue = item.Replace(_RenamedEventArgs.OldFullPath + '\\', _RenamedEventArgs.FullPath + '\\');
+                    _ReQueue = true;
+                    _ReQueue_Event = _Event.Replace(_RenamedEventArgs.OldFullPath + '\\', _RenamedEventArgs.FullPath + '\\');
                 }
                 else
                 {
-                    if (item == _RenamedEventArgs.OldFullPath)
+                    if (_Event == _RenamedEventArgs.OldFullPath)
                     {
-                        _InQueue = true;
-                        _ReQueue = _RenamedEventArgs.FullPath;
+                        _ReQueue = true;
+                        _ReQueue_Event = _RenamedEventArgs.FullPath;
                     }
                 }
 
-                if (_InQueue)
+                if (_ReQueue)
                 {
-                    _Queue_FileEvents.Add(_ReQueue);
+                    _Queue_FileEvents.Add(_ReQueue_Event);
                 }
             }
 
