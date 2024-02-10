@@ -215,7 +215,7 @@ namespace Standard
             {
                 string _FullPath = _Queue_FileEvents.Take();
 
-                //Console.WriteLine("AAA: Take() -> {0}", _FullPath);
+                //Console.WriteLine("FEM: Take() -> {0}", _FullPath);
 
                 FileInfo _FileInfo = new FileInfo(_FullPath);
 
@@ -291,7 +291,7 @@ namespace Standard
             {
                 FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-                //Console.WriteLine("BBB: Take() -> {0} {1}", _FileEvent.Action, _FileEvent.FullPath);
+                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.Action, _FileEvent.FullPath);
 
                 string _Hash = new string('-', 32);
                 long _Size = 0;
@@ -393,7 +393,7 @@ namespace Standard
         {
             switch (_Command.ToUpper())
             {
-                case "FES":
+                case "FEM":
                     foreach (var _Item in _Queue_FileEvents)
                     {
                         try
@@ -405,7 +405,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "FE":
+                case "FEO":
                     foreach (var _Item in _Queue_FileEvent)
                     {
                         try
@@ -417,7 +417,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "FM":
+                case "FED":
                     foreach (var _Key in _Dictionary_FileMemo.Keys.OrderBy(_Key => _Key))
                     {
                         try
@@ -429,7 +429,7 @@ namespace Standard
                         }
                     }
                     break;
-                case "FS":
+                case "FES":
                     FileScan();
                     break;
                 default:

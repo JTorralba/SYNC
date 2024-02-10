@@ -23,7 +23,7 @@ do
     {
         switch (_Command.ToUpper())
         {
-            case ".":
+            case "FEA":
                 foreach (var _FileEvent in _FileEvents)
                 {
                     Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.NameNew);
