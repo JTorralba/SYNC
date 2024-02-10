@@ -19,7 +19,7 @@ namespace Standard
 
     public class File
     {
-        public bool IsDirectory(string _FullPath)
+        public bool IsFolder(string _FullPath)
         {
             FileAttributes _FileAttributes = 0;
 
@@ -230,7 +230,7 @@ namespace Standard
                 }
                 else
                 {
-                    if (_File.IsDirectory(_FullPath))
+                    if (_File.IsFolder(_FullPath))
                     {
                         _FileHash = new string('-', 32);
                         _FileSize = 0;
@@ -261,7 +261,7 @@ namespace Standard
                     {
                         if ((_FileHash != _Record.Hash) && (_FileSize != 0))
                         {
-                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, _OldValue) => _FileMemo);
                             _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                         }
                         else
@@ -270,16 +270,16 @@ namespace Standard
                     }
                     else
                     {
-                        if (_File.IsDirectory(_FullPath))
+                        if (_File.IsFolder(_FullPath))
                         {
-                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                            _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, _OldValue) => _FileMemo);
                             _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                         }
                     }
                 }
                 else
                 {
-                    _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, OldValue) => _FileMemo);
+                    _Dictionary_FileMemo.AddOrUpdate(_FullPath, _FileMemo, (Key, _OldValue) => _FileMemo);
                     _Queue_FileEvent.Add(new FileEvent(_FullPath, "C", ""));
                 }
             }
@@ -313,7 +313,7 @@ namespace Standard
                 }
                 else
                 {
-                    if (_File.IsDirectory(_FileEvent.FullPath))
+                    if (_File.IsFolder(_FileEvent.FullPath))
                     {
                     }
                     else
@@ -365,7 +365,7 @@ namespace Standard
                         _ToDelete.ForEach(Key => _Dictionary_FileMemo.TryRemove(Key, out FileMemo _Remove_Delete));
                         break;
                     case "R":
-                        if (_File.IsDirectory(_FileEvent.NameNew))
+                        if (_File.IsFolder(_FileEvent.NameNew))
                         {
                             List<string> _ToRename = _Dictionary_FileMemo.Keys.Where(Key => Key.Contains(_FileEvent.FullPath + '\\')).ToList();
                             _ToRename.ForEach(Key => Rename(Key, _FileEvent.FullPath, _FileEvent.NameNew));
