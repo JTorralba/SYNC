@@ -134,6 +134,37 @@ namespace Standard
 
         public void Deleted(Object _Object, FileSystemEventArgs _FileSystemEventArgs)
         {
+            //Reference Only ----------------------------------------------------------------------
+            //
+            //foreach (var _Event in _Queue_FileEvents)
+            //{
+            //    bool _ReQueue = false;
+
+            //    string _ReQueue_Event = "";
+
+            //    if (_Event.Contains(_FileSystemEventArgs.FullPath + '\\'))
+            //    {
+            //        _ReQueue = false;
+            //    }
+            //    else
+            //    {
+            //        if (_Event == _FileSystemEventArgs.FullPath)
+            //        {
+            //            _ReQueue = false;
+            //        }
+            //        else
+            //        {
+            //            _ReQueue = true;
+            //            _ReQueue_Event = _FileSystemEventArgs.FullPath;
+            //        }
+            //    }
+
+            //    if (_ReQueue)
+            //    {
+            //        _Queue_FileEvents.Add(_ReQueue_Event);
+            //    }
+            //}
+
             _Queue_FileEvent.Add(new FileEvent(_FileSystemEventArgs.FullPath, "D", ""));
         }
 
