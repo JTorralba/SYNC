@@ -107,6 +107,8 @@ namespace Standard
 
         ConcurrentDictionary<string, FileMemo> _Dictionary_FileMemo;
 
+        string NumericSize = "D13";
+
         public FileAudit(ref List<FileEvent> _FileEvents)
         {
             this._FileEvents = _FileEvents;
@@ -253,7 +255,7 @@ namespace Standard
 
                 _FileMemo = new FileMemo(_FileHash, _FileSize, _FileModified);
 
-                //Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", " ", _FileHash, _FileSize.ToString(), _FullPath, _FileModified);
+                Console.WriteLine("{0} {1, -10} {2} {3}", _FileHash, _FileSize.ToString(NumericSize), _FileModified, _FullPath);
 
                 if (_Dictionary_FileMemo.TryGetValue(_FullPath, out FileMemo _Record))
                 {
@@ -291,7 +293,7 @@ namespace Standard
             {
                 FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.Action, _FileEvent.FullPath);
+                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.FullPath, _FileEvent.Action);
 
                 string _Hash = new string('-', 32);
                 long _Size = 0;
@@ -354,7 +356,7 @@ namespace Standard
                     }
                 }
 
-                Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4} {5}", _FileEvent.Action, _Hash, _Size.ToString(), _FileEvent.FullPath, _Modified, _NameNew);
+                Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
 
                 _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _NameNew));
 
@@ -410,7 +412,7 @@ namespace Standard
                     {
                         try
                         {
-                            Console.WriteLine("{0} {1}", _Item.Action, _Item.FullPath);
+                            Console.WriteLine("{0} {1}", _Item.FullPath, _Item.Action);
                         }
                         catch (Exception _Exception)
                         {
@@ -422,7 +424,7 @@ namespace Standard
                     {
                         try
                         {
-                            Console.WriteLine("{0, -1} {1, -32} {2, -10} {3, -49} {4}", ' ', _Dictionary_FileMemo[_Key].Hash, _Dictionary_FileMemo[_Key].Size.ToString(), _Key, _Dictionary_FileMemo[_Key].Modified);
+                            Console.WriteLine("{0} {1, -10} {2} {3}", _Dictionary_FileMemo[_Key].Hash, _Dictionary_FileMemo[_Key].Size.ToString(NumericSize), _Dictionary_FileMemo[_Key].Modified, _Key);
                         }
                         catch (Exception _Exception)
                         {
