@@ -255,7 +255,7 @@ namespace Standard
 
                 _FileMemo = new FileMemo(_FileHash, _FileSize, _FileModified);
 
-                Console.WriteLine("{0} {1, -10} {2} {3}", _FileHash, _FileSize.ToString(NumericSize), _FileModified, _FullPath);
+                //Console.WriteLine("{0} {1, -10} {2} {3}", _FileHash, _FileSize.ToString(NumericSize), _FileModified, _FullPath);
 
                 if (_Dictionary_FileMemo.TryGetValue(_FullPath, out FileMemo _Record))
                 {
