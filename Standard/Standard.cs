@@ -100,7 +100,7 @@ namespace Standard
         File _File = new File();
         Cryptology _Cryptology = new Cryptology();
 
-        List<FileEvent> _FileEvents = new List<FileEvent>();
+        BlockingCollection<FileEvent> _Queue_FileEvent_Reference;
 
         BlockingCollection<string> _Queue_FileEvents;
         BlockingCollection<FileEvent> _Queue_FileEvent;
@@ -109,9 +109,9 @@ namespace Standard
 
         string NumericSize = "D13";
 
-        public FileAudit(ref List<FileEvent> _FileEvents)
+        public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference)
         {
-            this._FileEvents = _FileEvents;
+            this._Queue_FileEvent_Reference = _Queue_FileEvent_Reference;
 
             _Queue_FileEvents = new BlockingCollection<string>();
             _Queue_FileEvent = new BlockingCollection<FileEvent>();
@@ -293,7 +293,7 @@ namespace Standard
             {
                 FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.FullPath, _FileEvent.Action);
+                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
 
                 string _Hash = new string('-', 32);
                 long _Size = 0;
@@ -356,9 +356,9 @@ namespace Standard
                     }
                 }
 
-                Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
+                //Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
 
-                _FileEvents.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _NameNew));
+                _Queue_FileEvent_Reference.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _NameNew));
 
                 switch (_FileEvent.Action)
                 {

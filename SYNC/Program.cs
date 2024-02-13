@@ -1,13 +1,12 @@
 ﻿using Standard;
+using System.Collections.Concurrent;
 
 string _Source = @Environment.GetFolderPath(System.Environment.SpecialFolder.UserProfile) + '\\' + "Desktop";
 string _Target = @_Source + ".SYNC";
 
-Console.WriteLine(_Source + " -> " + _Target);
+BlockingCollection<FileEvent> _Queue_FileEvent = new BlockingCollection<FileEvent>();
 
-List<FileEvent> _FileEvents = new List<FileEvent>();
-
-FileAudit _FileAudit = new FileAudit(ref _FileEvents);
+FileAudit _FileAudit = new FileAudit(ref _Queue_FileEvent);
 
 FileSystemWatcher _FileSystemWatcher = new FileSystemWatcher(_Source, filter: "*");
 
@@ -29,7 +28,7 @@ do
         switch (_Command.ToUpper())
         {
             case "FEA":
-                foreach (var _FileEvent in _FileEvents)
+                foreach (var _FileEvent in _Queue_FileEvent)
                 {
                     Console.WriteLine(_FileEvent.FullPath + ' ' + _FileEvent.Action + ' ' + _FileEvent.NameNew);
                 }
