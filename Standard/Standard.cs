@@ -358,7 +358,7 @@ namespace Standard
 
                 //Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
 
-                _Queue_FileEvent_Reference.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _NameNew));
+                _Queue_FileEvent_Reference.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew));
 
                 switch (_FileEvent.Action)
                 {
@@ -452,10 +452,25 @@ namespace Standard
             {
             }
 
-            using (FileStream _FileStream = new FileStream(_FullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+            bool _Success = false;
+
+            while (_Success == false)
             {
-                return FileHash(_FileStream);
+                try
+                {
+                    using (FileStream _FileStream = new FileStream(_FullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
+                    {
+                        _Success = true;
+                        return FileHash(_FileStream);
+                    }
+                }
+                catch (Exception E)
+                {
+
+                }
+
             }
+            return new string('-', 32);
         }
 
         public string FileHash(FileStream _FileStream)
