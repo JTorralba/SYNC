@@ -180,9 +180,9 @@ void FileEvent()
 
                 _Success = true;
             }
-            catch (Exception E)
+            catch (Exception _Exception)
             {
-                //Console.WriteLine("{0}", E.Message.ToString());
+                //Console.WriteLine("{0}", _Exception.Message.ToString());
             }
 
         } while (_Success != true);

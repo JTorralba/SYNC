@@ -464,7 +464,7 @@ namespace Standard
                         return FileHash(_FileStream);
                     }
                 }
-                catch (Exception E)
+                catch (Exception _Exception)
                 {
 
                 }
