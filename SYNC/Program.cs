@@ -1,6 +1,5 @@
 ﻿using Standard;
 using System.Collections.Concurrent;
-using System.IO;
 
 Standard.File _File = new Standard.File();
 
@@ -54,176 +53,143 @@ void FileEvent()
     {
         FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-        //Console.WriteLine("FEO: Take() -> {0} {1} {2}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
+        //Console.WriteLine("FEA: Take() -> {0} {1} {2}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
 
-        Thread.Sleep(0000);
+        string _Action = null;
+        string _Argument1 = null;
+        string _Argument2 = null;
 
-        string _Action = "";
-        string _Argument1 = "";
-        string _Argument2 = "";
-
-        switch (_FileEvent.Action)
+        bool _Success = false;
+        do
         {
-            case "D":
-                _Action = "delete";
-                _Argument1 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
+            try
+            {
+                switch (_FileEvent.Action)
+                {
+                    case "C":
+                        _Argument1 = _FileEvent.FullPath;
+                        break;
+                    case "D":
+                        _Argument1 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
+                        break;
+                    case "R":
+                        _Argument1 = _FileEvent.NameNew;
+                        break;
+                    default:
+                        break;
+                }
 
                 if (_File.IsFolder(_Argument1))
                 {
-                    DirectoryInfo _DirectoryInfo = new DirectoryInfo(_Argument1);
-
-                    bool _Success = false;
-
-                    while (_Success == false)
-                    {
-                        try
-                        {
-                            _DirectoryInfo.Delete();
-                            _Success = true;
-                        }
-                        catch (Exception E)
-                        {
-                        }
-                    }
-                }
-                else
-                {
-                    FileInfo _FileInfoD = new FileInfo(_Argument1);
-
-                    if (_FileInfoD.Exists)
-                    {
-                        while (_File.IsLocked(_Argument1))
-                        {
-                        }
-
-                        bool _Success = false;
-
-                        while (_Success == false)
-                        {
-                            try
-                            {
-                                _FileInfoD.Delete();
-                                _Success = true;
-                            }
-                            catch (Exception E)
-                            {
-                            }
-                        }
-                    }
-
-                }
-                break;
-
-            case "R":
-                _Action = "rename";
-                _Argument1 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
-                _Argument2 = _FileEvent.NameNew.Replace(_Source + '\\', _Target + '\\');
-
-                if (_File.IsFolder(_Argument1))
-                {
-                    DirectoryInfo _DirectoryInfo = new DirectoryInfo(_Argument1);
-
-                    bool _Success = false;
-
-                    while (_Success == false)
-                    {
-                        try
-                        {
-                            _DirectoryInfo.MoveTo(_Argument2);
-                            _Success = true;
-                        }
-                        catch (Exception E)
-                        {
-                        }
-                    }
-                }
-                else
-                {
-                    FileInfo _FileInfoR = new FileInfo(_Argument1);
-                    if (_FileInfoR.Exists)
-                    {
-                        while (_File.IsLocked(_Argument1))
-                        {
-                        }
-
-                        bool _Success = false;
-
-                        while (_Success == false)
-                        {
-                            try
-                            {
-                                _FileInfoR.MoveTo(_Argument2);
-                                _Success = true;
-                            }
-                            catch (Exception E)
-                            {
-                            }
-                        }
-                    }
-                }
-                break;
-
-            case "C":
-
-                _Argument1 = _FileEvent.FullPath;
-
-                if (_File.IsFolder(_Argument1))
-                {
-                    _Action = "create";
                     _Argument1 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
+                    DirectoryInfo _DirectoryInfo = new DirectoryInfo(_Argument1);
 
-                    bool _Success = false;
-
-                    while (_Success == false)
+                    switch (_FileEvent.Action)
                     {
-                        try
-                        {
-                            System.IO.Directory.CreateDirectory(_Argument1);
-                            _Success = true;
-                        }
-                        catch (Exception E)
-                        {
-                        }
+                        case "C":
+                            _Action = "CREATE";
+                            if (!Directory.Exists(_Argument1))
+                            {
+                                Directory.CreateDirectory(_Argument1);
+                            }
+                            else
+                            {
+                                _Action = "SKIP";
+                            }
+                            break;
+
+                        case "D":
+                            _Action = "DELETE";
+                            if (Directory.Exists(_Argument1))
+                            {
+                                _DirectoryInfo.Delete(true);
+                            }
+                            else
+                            {
+                                _Action = "SKIP";
+                            }
+                            break;
+
+                        case "R":
+                            _Action = "RENAME";
+                            _Argument2 = _FileEvent.NameNew.Replace(_Source + '\\', _Target + '\\');
+                            if (Directory.Exists(_Argument1) && !Directory.Exists(_Argument2))
+                            {
+                                _DirectoryInfo.MoveTo(_Argument2);
+                            }
+                            else
+                            {
+                                _Action = "SKIP";
+                            }
+
+                            break;
+
+                        default:
+                            break;
                     }
                 }
                 else
                 {
-                    FileInfo _FileInfoC = new FileInfo(_Argument1);
-                    if (_FileInfoC.Exists)
+                    FileInfo _FileInfo;
+
+                    if (_FileEvent.Action == "C")
                     {
-                        while (_File.IsLocked(_Argument1))
+                        _Argument1 = _FileEvent.FullPath;
+                    }
+                    else
+                    {
+                        _Argument1 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
+                    }
+
+                    _FileInfo = new FileInfo(_Argument1);
+
+                    if (_FileInfo.Exists)
+                    {
+                        switch (_FileEvent.Action)
                         {
-                        }
-
-                        _Action = "copy";
-                        _Argument2 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
-
-                        Directory.CreateDirectory(Path.GetDirectoryName(_Argument2));
-
-                        bool _Success = false;
-
-                        while (_Success == false)
-                        {
-                            try
-                            {
+                            case "C":
+                                _Action = "COPY";
+                                _Argument2 = _FileEvent.FullPath.Replace(_Source + '\\', _Target + '\\');
+                                if (!Directory.Exists(Path.GetDirectoryName(_Argument2)))
+                                {
+                                    Directory.CreateDirectory(Path.GetDirectoryName(_Argument2));
+                                }
                                 System.IO.File.Copy(_Argument1, _Argument2, true);
-                                _Success = true;
-                            }
-                            catch (Exception E)
-                            {
-                            }
+                                break;
+
+                            case "D":
+                                _Action = "DELETE";
+                                _FileInfo.Delete();
+                                break;
+
+                            case "R":
+                                _Action = "RENAME";
+                                _Argument2 = _FileEvent.NameNew.Replace(_Source + '\\', _Target + '\\');
+                                _FileInfo.MoveTo(_Argument2);
+                                break;
+
+                            default:
+                                break;
                         }
+                    }
+                    else
+                    {
+                        _Action = "SKIP";
                     }
                 }
 
-                break;
+                _Success = true;
+            }
+            catch (Exception E)
+            {
+                //Console.WriteLine("{0}", E.Message.ToString());
+            }
 
-            default:
-                break;
+        } while (_Success != true);
+
+        if (_Action != "SKIP")
+        {
+            Console.WriteLine("{0} {1} {2}", _Action, _Argument1, _Argument2);
         }
-
-        Console.WriteLine("{0} {1} {2}", _Action, _Argument1, _Argument2);
     }
-
-    _FileAudit.CLI("FEM");
 }
