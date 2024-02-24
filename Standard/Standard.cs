@@ -107,7 +107,7 @@ namespace Standard
 
         ConcurrentDictionary<string, FileMemo> _Dictionary_FileMemo;
 
-        string NumericSize = "D13";
+        string _NumericSize = "D13";
 
         public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference)
         {
@@ -424,7 +424,7 @@ namespace Standard
                     {
                         try
                         {
-                            Console.WriteLine("{0} {1, -10} {2} {3}", _Dictionary_FileMemo[_Key].Hash, _Dictionary_FileMemo[_Key].Size.ToString(NumericSize), _Dictionary_FileMemo[_Key].Modified, _Key);
+                            Console.WriteLine("{0} {1, -10} {2} {3}", _Dictionary_FileMemo[_Key].Hash, _Dictionary_FileMemo[_Key].Size.ToString(_NumericSize), _Dictionary_FileMemo[_Key].Modified, _Key);
                         }
                         catch (Exception _Exception)
                         {
