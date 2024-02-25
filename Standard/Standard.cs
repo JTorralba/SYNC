@@ -11,14 +11,31 @@ namespace Standard
 {
     public class DEBUG
     {
-        public static void Message(string _Message)
+        public static void Message(string _Class, string _Message)
         {
-            Console.WriteLine("DEBUG: {0}", _Message);
+            Console.WriteLine("{0}: {1}", _Class, _Message);
         }
     }
 
     public class File
     {
+        private bool _DEBUG;
+
+        public File()
+        {
+            Initialize(false);
+        }
+
+        public File(bool _DEBUG)
+        {
+            Initialize(_DEBUG);
+        }
+
+        void Initialize(bool _DEBUG)
+        {
+            this._DEBUG = _DEBUG;
+        }
+
         public bool IsFolder(string _FullPath)
         {
             FileAttributes _FileAttributes = 0;
@@ -29,6 +46,10 @@ namespace Standard
             }
             catch (Exception _Exception)
             {
+                if (_DEBUG)
+                {
+                    DEBUG.Message("File.IsFolder", _Exception.Message.ToString());
+                }
                 return false;
             }
 
@@ -52,6 +73,10 @@ namespace Standard
             }
             catch (Exception _Exception)
             {
+                if (_DEBUG)
+                {
+                    DEBUG.Message("File.IsLocked", _Exception.Message.ToString());
+                }
                 return true;
             }
             finally
@@ -97,21 +122,39 @@ namespace Standard
 
     public class FileAudit
     {
-        File _File = new File();
-        Cryptology _Cryptology = new Cryptology();
+        private bool _DEBUG;
 
-        BlockingCollection<FileEvent> _Queue_FileEvent_Reference;
+        private File _File;
+        private Cryptology _Cryptology;
 
-        BlockingCollection<string> _Queue_FileEvents;
-        BlockingCollection<FileEvent> _Queue_FileEvent;
+        private BlockingCollection<FileEvent> _Queue_FileEvent_Reference;
 
-        ConcurrentDictionary<string, FileMemo> _Dictionary_FileMemo;
+        private BlockingCollection<string> _Queue_FileEvents;
+        private BlockingCollection<FileEvent> _Queue_FileEvent;
 
-        string _NumericSize = "D13";
+        private ConcurrentDictionary<string, FileMemo> _Dictionary_FileMemo;
+
+        private string _NumericSize;
 
         public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference)
         {
+            Initialize(ref _Queue_FileEvent_Reference, false);
+        }
+
+        public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _DEBUG)
+        {
+            Initialize(ref _Queue_FileEvent_Reference, _DEBUG);
+        }
+
+        void Initialize(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _DEBUG)
+        {
+            this._DEBUG = _DEBUG;
             this._Queue_FileEvent_Reference = _Queue_FileEvent_Reference;
+
+            _File = new File(_DEBUG);
+            _Cryptology = new Cryptology(_DEBUG);
+
+            _NumericSize = "D13";
 
             _Queue_FileEvents = new BlockingCollection<string>();
             _Queue_FileEvent = new BlockingCollection<FileEvent>();
@@ -404,6 +447,10 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
+                            if (_DEBUG)
+                            {
+                                DEBUG.Message("CLI.FEM", _Exception.Message.ToString());
+                            }
                         }
                     }
                     break;
@@ -416,6 +463,10 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
+                            if (_DEBUG)
+                            {
+                                DEBUG.Message("CLI.FEO", _Exception.Message.ToString());
+                            }
                         }
                     }
                     break;
@@ -428,6 +479,10 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
+                            if (_DEBUG)
+                            {
+                                DEBUG.Message("CLI.FED", _Exception.Message.ToString());
+                            }
                         }
                     }
                     break;
@@ -442,7 +497,25 @@ namespace Standard
 
     public class Cryptology
     {
-        File _File = new File();
+        private bool _DEBUG;
+
+        private File _File;
+
+        public Cryptology()
+        {
+            Initialize(false);
+        }
+
+        public Cryptology(bool _DEBUG)
+        {
+            Initialize(_DEBUG);
+        }
+
+        void Initialize(bool _DEBUG)
+        {
+            this._DEBUG = _DEBUG;
+            _File = new File(_DEBUG);
+        }
 
         public string FileHash(string _FullPath)
         {
@@ -466,9 +539,11 @@ namespace Standard
                 }
                 catch (Exception _Exception)
                 {
-
+                    if (_DEBUG)
+                    {
+                        DEBUG.Message("Cryptology.FileHash", _Exception.Message.ToString());
+                    }
                 }
-
             }
             return new string('-', 32);
         }
