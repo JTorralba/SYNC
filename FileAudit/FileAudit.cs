@@ -3,95 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Standard
 {
-    public class DEBUG
-    {
-        public static void Message(string _Class, string _Message)
-        {
-            Console.WriteLine("{0}: {1}", _Class, _Message);
-        }
-    }
-
-    public class File
-    {
-        private bool _DEBUG;
-
-        public File()
-        {
-            Initialize(false);
-        }
-
-        public File(bool _DEBUG)
-        {
-            Initialize(_DEBUG);
-        }
-
-        void Initialize(bool _DEBUG)
-        {
-            this._DEBUG = _DEBUG;
-        }
-
-        public bool IsFolder(string _FullPath)
-        {
-            FileAttributes _FileAttributes = 0;
-
-            try
-            {
-                _FileAttributes = System.IO.File.GetAttributes(_FullPath);
-            }
-            catch (Exception _Exception)
-            {
-                if (_DEBUG)
-                {
-                    DEBUG.Message("File.IsFolder", _Exception.Message.ToString());
-                }
-                return false;
-            }
-
-            if ((_FileAttributes & FileAttributes.Directory) == FileAttributes.Directory)
-            {
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool IsLocked(string _FullPath)
-        {
-            FileInfo _FileInfo = new FileInfo(_FullPath);
-
-            FileStream _FileStream = null;
-
-            try
-            {
-                _FileStream = _FileInfo.Open(FileMode.Open, FileAccess.ReadWrite, FileShare.None);
-            }
-            catch (Exception _Exception)
-            {
-                if (_DEBUG)
-                {
-                    DEBUG.Message("File.IsLocked", _Exception.Message.ToString());
-                }
-                return true;
-            }
-            finally
-            {
-                if (_FileStream != null)
-                {
-                    _FileStream.Close();
-                    _FileStream.Dispose();
-                }
-            }
-
-            return false;
-        }
-    }
-
     public class FileEvent
     {
         public string FullPath;
@@ -122,13 +37,12 @@ namespace Standard
 
     public class FileAudit
     {
-        private bool _DEBUG;
-
+        private bool _X;
+        private DEBUG _DEBUG;
         private File _File;
         private Cryptology _Cryptology;
 
         private BlockingCollection<FileEvent> _Queue_FileEvent_Reference;
-
         private BlockingCollection<string> _Queue_FileEvents;
         private BlockingCollection<FileEvent> _Queue_FileEvent;
 
@@ -141,25 +55,25 @@ namespace Standard
             Initialize(ref _Queue_FileEvent_Reference, false);
         }
 
-        public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _DEBUG)
+        public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _X)
         {
-            Initialize(ref _Queue_FileEvent_Reference, _DEBUG);
+            Initialize(ref _Queue_FileEvent_Reference, _X);
         }
 
-        void Initialize(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _DEBUG)
+        private void Initialize(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _X)
         {
-            this._DEBUG = _DEBUG;
+            this._X = _X;
+            _DEBUG = new DEBUG();
+            _File = new File(_X);
+            _Cryptology = new Cryptology(_X);
+
             this._Queue_FileEvent_Reference = _Queue_FileEvent_Reference;
-
-            _File = new File(_DEBUG);
-            _Cryptology = new Cryptology(_DEBUG);
-
-            _NumericSize = "D13";
-
             _Queue_FileEvents = new BlockingCollection<string>();
             _Queue_FileEvent = new BlockingCollection<FileEvent>();
 
             _Dictionary_FileMemo = new ConcurrentDictionary<string, FileMemo>();
+
+            _NumericSize = "D13";
 
             Task.Run(() => FileEvents());
             Task.Run(() => FileEvent());
@@ -244,7 +158,7 @@ namespace Standard
             _Queue_FileEvent.Add(new FileEvent(_RenamedEventArgs.OldFullPath, "R", _RenamedEventArgs.FullPath));
         }
 
-        void FileScan()
+        private void FileScan()
         {
             string[] _Items = Directory.GetFileSystemEntries(@"C:\Users\JTorralba\Desktop", "*", SearchOption.AllDirectories);
 
@@ -254,7 +168,7 @@ namespace Standard
             }
         }
 
-        void FileEvents()
+        private void FileEvents()
         {
             while (!_Queue_FileEvents.IsCompleted)
             {
@@ -330,7 +244,7 @@ namespace Standard
             }
         }
 
-        void FileEvent()
+        private void FileEvent()
         {
             while (!_Queue_FileEvent.IsCompleted)
             {
@@ -427,7 +341,7 @@ namespace Standard
             }
         }
 
-        void Rename(string _Key, string _FullPath, string _NameNew)
+        private void Rename(string _Key, string _FullPath, string _NameNew)
         {
             _Dictionary_FileMemo.TryGetValue(_Key, out FileMemo _Record);
             _Dictionary_FileMemo.TryAdd(_Key.Replace(_FullPath, _NameNew), _Record);
@@ -447,9 +361,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_DEBUG)
+                            if (_X)
                             {
-                                DEBUG.Message("CLI.FEM", _Exception.Message.ToString());
+                                _DEBUG.Message("CLI.FEM", _Exception.Message.ToString());
                             }
                         }
                     }
@@ -463,9 +377,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_DEBUG)
+                            if (_X)
                             {
-                                DEBUG.Message("CLI.FEO", _Exception.Message.ToString());
+                                _DEBUG.Message("CLI.FEO", _Exception.Message.ToString());
                             }
                         }
                     }
@@ -479,9 +393,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_DEBUG)
+                            if (_X)
                             {
-                                DEBUG.Message("CLI.FED", _Exception.Message.ToString());
+                                _DEBUG.Message("CLI.FED", _Exception.Message.ToString());
                             }
                         }
                     }
@@ -492,89 +406,6 @@ namespace Standard
                 default:
                     break;
             }
-        }
-    }
-
-    public class Cryptology
-    {
-        private bool _DEBUG;
-
-        private File _File;
-
-        public Cryptology()
-        {
-            Initialize(false);
-        }
-
-        public Cryptology(bool _DEBUG)
-        {
-            Initialize(_DEBUG);
-        }
-
-        void Initialize(bool _DEBUG)
-        {
-            this._DEBUG = _DEBUG;
-            _File = new File(_DEBUG);
-        }
-
-        public string FileHash(string _FullPath)
-        {
-            var _FileInfo = new FileInfo(_FullPath);
-
-            while (_FileInfo.Exists && _File.IsLocked(_FullPath))
-            {
-            }
-
-            bool _Success = false;
-
-            while (_Success == false)
-            {
-                try
-                {
-                    using (FileStream _FileStream = new FileStream(_FullPath, FileMode.Open, FileAccess.Read, FileShare.Read))
-                    {
-                        _Success = true;
-                        return FileHash(_FileStream);
-                    }
-                }
-                catch (Exception _Exception)
-                {
-                    if (_DEBUG)
-                    {
-                        DEBUG.Message("Cryptology.FileHash", _Exception.Message.ToString());
-                    }
-                }
-            }
-            return new string('-', 32);
-        }
-
-        public string FileHash(FileStream _FileStream)
-        {
-            StringBuilder _StringBuilder = new StringBuilder();
-
-            if (_FileStream != null)
-            {
-                _FileStream.Seek(0, SeekOrigin.Begin);
-
-                MD5 _MD5 = MD5CryptoServiceProvider.Create();
-
-                Byte[] _Bytes = _MD5.ComputeHash(_FileStream);
-
-                foreach (Byte _Byte in _Bytes)
-                {
-                    _StringBuilder.Append(_Byte.ToString("X2"));
-                }
-
-                _FileStream.Seek(0, SeekOrigin.Begin);
-            }
-
-            if (_FileStream != null)
-            {
-                _FileStream.Close();
-                _FileStream.Dispose();
-            }
-            
-            return _StringBuilder.ToString();
         }
     }
 }

@@ -10,7 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Standard\Standard.csproj" />
+    <ProjectReference Include="..\FileAudit\FileAudit.csproj" />
+    <ProjectReference Include="..\File\File.csproj" />
   </ItemGroup>
 
 </Project>
