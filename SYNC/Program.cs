@@ -1,11 +1,18 @@
 ﻿using System.Collections.Concurrent;
-
 using Standard;
 
 class SYNC
 {
-    private static bool _X;
-    private static DEBUG? _DEBUG;
+    private enum DEBUG
+    {
+        Off,
+        Trace,
+        Exception,
+        On
+    }
+
+    private static int _DEBUG = (int) DEBUG.Off;
+
     private static Standard.File? _File;
     private static FileAudit? _FileAudit;
 
@@ -19,8 +26,6 @@ class SYNC
 
     private static void Main(string[] args)
     {
-        _X = false;
-        _DEBUG = new DEBUG();
          _File = new Standard.File();
 
         _Queue_FileEvent = new BlockingCollection<FileEvent>();
@@ -71,7 +76,10 @@ class SYNC
         {
             FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-            //Console.WriteLine("FEA: Take() -> {0} {1} {2}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
+            if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Trace))
+            {
+                Console.WriteLine("FEA: Take() -> {0} {1} {2}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
+            }
 
             string _Action = string.Empty;
             string _Argument1 = string.Empty;
@@ -200,9 +208,9 @@ class SYNC
                 }
                 catch (Exception _Exception)
                 {
-                    if (_X)
+                    if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                     {
-                        _DEBUG.Message("{0}", _Exception.Message.ToString());
+                        Console.WriteLine("SYNC.FileEvent: {0}", _Exception.Message);
                     }
                 }
 

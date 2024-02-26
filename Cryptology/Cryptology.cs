@@ -7,25 +7,21 @@ namespace Standard
 {
     public class Cryptology
     {
-        private bool _X;
-        private DEBUG _DEBUG;
+        private enum DEBUG
+        {
+            Off,
+            Trace,
+            Exception,
+            On
+        }
+
+        private static int _DEBUG = (int) DEBUG.Off;
+
         private Standard.File _File;
 
         public Cryptology()
         {
-            Initialize(false);
-        }
-
-        public Cryptology(bool _X)
-        {
-            Initialize(_X);
-        }
-
-        private void Initialize(bool _X)
-        {
-            this._X = _X;
-            _DEBUG = new DEBUG();
-            _File = new Standard.File(_X);
+            _File = new Standard.File();
         }
 
         public string FileHash(string _FullPath)
@@ -50,9 +46,9 @@ namespace Standard
                 }
                 catch (Exception _Exception)
                 {
-                    if (_X)
+                    if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                     {
-                        _DEBUG.Message("Cryptology.FileHash", _Exception.Message.ToString());
+                        Console.WriteLine("Cryptology.FileHash: {0}", _Exception.Message.ToString());
                     }
                 }
             }

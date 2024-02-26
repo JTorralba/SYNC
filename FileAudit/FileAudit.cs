@@ -37,8 +37,16 @@ namespace Standard
 
     public class FileAudit
     {
-        private bool _X;
-        private DEBUG _DEBUG;
+        private enum DEBUG
+        {
+            Off,
+            Trace,
+            Exception,
+            On
+        }
+
+        private static int _DEBUG = (int) DEBUG.Off;
+
         private File _File;
         private Cryptology _Cryptology;
 
@@ -52,20 +60,8 @@ namespace Standard
 
         public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference)
         {
-            Initialize(ref _Queue_FileEvent_Reference, false);
-        }
-
-        public FileAudit(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _X)
-        {
-            Initialize(ref _Queue_FileEvent_Reference, _X);
-        }
-
-        private void Initialize(ref BlockingCollection<FileEvent> _Queue_FileEvent_Reference, bool _X)
-        {
-            this._X = _X;
-            _DEBUG = new DEBUG();
-            _File = new File(_X);
-            _Cryptology = new Cryptology(_X);
+            _File = new File();
+            _Cryptology = new Cryptology();
 
             this._Queue_FileEvent_Reference = _Queue_FileEvent_Reference;
             _Queue_FileEvents = new BlockingCollection<string>();
@@ -174,7 +170,10 @@ namespace Standard
             {
                 string _FullPath = _Queue_FileEvents.Take();
 
-                //Console.WriteLine("FEM: Take() -> {0}", _FullPath);
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Trace))
+                {
+                    Console.WriteLine("FEM: Take() -> {0}", _FullPath);
+                }
 
                 FileInfo _FileInfo = new FileInfo(_FullPath);
 
@@ -212,7 +211,10 @@ namespace Standard
 
                 _FileMemo = new FileMemo(_FileHash, _FileSize, _FileModified);
 
-                //Console.WriteLine("{0} {1, -10} {2} {3}", _FileHash, _FileSize.ToString(NumericSize), _FileModified, _FullPath);
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Trace))
+                {
+                    Console.WriteLine("{0} {1, -10} {2} {3}", _FileHash, _FileSize.ToString(_NumericSize), _FileModified, _FullPath);
+                }
 
                 if (_Dictionary_FileMemo.TryGetValue(_FullPath, out FileMemo _Record))
                 {
@@ -250,7 +252,10 @@ namespace Standard
             {
                 FileEvent _FileEvent = _Queue_FileEvent.Take();
 
-                //Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Trace))
+                {
+                    Console.WriteLine("FEO: Take() -> {0} {1}", _FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew);
+                }
 
                 string _Hash = new string('-', 32);
                 long _Size = 0;
@@ -313,7 +318,10 @@ namespace Standard
                     }
                 }
 
-                //Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Trace))
+                {
+                    Console.WriteLine("{0} {1, -10} {2} {3} {4} {5}", _Hash, _Size.ToString(_NumericSize), _Modified, _FileEvent.FullPath, _FileEvent.Action, _NameNew);
+                }
 
                 _Queue_FileEvent_Reference.Add(new FileEvent(_FileEvent.FullPath, _FileEvent.Action, _FileEvent.NameNew));
 
@@ -361,9 +369,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_X)
+                            if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                             {
-                                _DEBUG.Message("CLI.FEM", _Exception.Message.ToString());
+                                Console.WriteLine("CLI.FEM: {0}", _Exception.Message.ToString());
                             }
                         }
                     }
@@ -377,9 +385,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_X)
+                            if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                             {
-                                _DEBUG.Message("CLI.FEO", _Exception.Message.ToString());
+                                Console.WriteLine("CLI.FEO: {0}", _Exception.Message.ToString());
                             }
                         }
                     }
@@ -393,9 +401,9 @@ namespace Standard
                         }
                         catch (Exception _Exception)
                         {
-                            if (_X)
+                            if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                             {
-                                _DEBUG.Message("CLI.FED", _Exception.Message.ToString());
+                                Console.WriteLine("CLI.FED: {0}", _Exception.Message.ToString());
                             }
                         }
                     }

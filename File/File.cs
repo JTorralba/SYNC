@@ -5,28 +5,23 @@ namespace Standard
 {
     public class File
     {
-        private bool _X;
-        private DEBUG _DEBUG;
+        private enum DEBUG
+        {
+            Off,
+            Trace,
+            Exception,
+            On
+        }
+
+        private static int _DEBUG = (int) DEBUG.Off;
 
         public File()
         {
-            Initialize(false);
-        }
-
-        public File(bool _X)
-        {
-            Initialize(_X);
-        }
-
-        private void Initialize(bool _X)
-        {
-            this._X = _X;
-            _DEBUG = new DEBUG();
         }
 
         public bool IsFolder(string _FullPath)
         {
-            FileAttributes _FileAttributes = 0;
+            FileAttributes _FileAttributes;
 
             try
             {
@@ -34,9 +29,9 @@ namespace Standard
             }
             catch (Exception _Exception)
             {
-                if (_X)
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                 {
-                    _DEBUG.Message("File.IsFolder", _Exception.Message.ToString());
+                    Console.WriteLine("File.IsFolder: {0}", _Exception.Message.ToString());
                 }
                 return false;
             }
@@ -61,9 +56,9 @@ namespace Standard
             }
             catch (Exception _Exception)
             {
-                if (_X)
+                if (Convert.ToBoolean(_DEBUG & (int) DEBUG.Exception))
                 {
-                    _DEBUG.Message("File.IsLocked", _Exception.Message.ToString());
+                    Console.WriteLine("File.IsLocked: {0}", _Exception.Message.ToString());
                 }
                 return true;
             }

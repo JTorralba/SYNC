@@ -6,7 +6,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Cryptology\Cryptology.csproj" />
-    <ProjectReference Include="..\DEBUG\DEBUG.csproj" />
     <ProjectReference Include="..\File\File.csproj" />
   </ItemGroup>
 
